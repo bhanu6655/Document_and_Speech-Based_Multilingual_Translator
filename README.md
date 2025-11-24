@@ -1,42 +1,191 @@
-This is a Python-based desktop application built using Tkinter that allows users to translate text and audio between multiple languages, speak translated results, and save both text and audio outputs. The platform leverages powerful libraries like googletrans, gTTS, SpeechRecognition, and pydub to provide a seamless multilingual experience.
+This is a Python-based desktop application built using Tkinter, designed to provide a complete multilingual translation solution.
+It supports text translation, audio translation, document translation (PDF, DOCX, PPTX), image OCR, speech recognition, and text-to-speech.
 
-🚀 Features
-🔤 Text Translation
-Translate any input text into over 25+ supported languages.
+It is built on top of reliable libraries like googletrans, SpeechRecognition, gTTS, pydub, pdfplumber, python-pptx, and Tesseract OCR.
 
-🧠 Voice Recognition & Translation
-Use your microphone to speak in one language and receive translated output in another.
+> Key Features
+> Text Translation
 
-🎧 Audio File Transcription
-Upload .mp3, .wav, .ogg, or .flac audio files and convert spoken words into text.
+Translate any input text into 25+ languages.
 
-🔊 Text-to-Speech
-Listen to translated text using Google Text-to-Speech (gTTS) and pygame.
+Supports long paragraphs and multi-line inputs.
 
-💾 Save Translations
-Save translated text as .txt or .docx, and save generated voice as .mp3 or .wav.
+Accurate and fast using googletrans.
 
-📂 Upload Text Files
-Import .txt or .docx files and translate their content easily.
+> Audio Translation & Speech Recognition
 
-🛠 Technologies Used
-Tkinter – GUI framework for the desktop interface
+Convert spoken audio from microphone into text using Google Speech Recognition.
 
-googletrans – Google Translate API for Python
+Supports translation from microphone input to any target language.
 
-SpeechRecognition – Recognizes speech via Google Speech API
+Upload and transcribe audio files:
 
-gTTS (Google Text-to-Speech) – Converts text into spoken voice
+.mp3
 
-pydub – Converts audio formats for compatibility
+.wav
 
-pythoncom – Handles COM initialization (for Windows environments)
+.ogg
 
-pygame – Plays back translated audio
+.flac
 
-docx (python-docx) – Parses and saves Word documents
+> Text-to-Speech (TTS)
 
-🌐 Supported Languages
-Includes major languages like English, Hindi, Tamil, Telugu, Bengali, Japanese, Arabic, Spanish, French, German, Chinese, and many more. The app supports both input and output language selection.
+Listen to translated output using Google Text-to-Speech (gTTS).
 
+Clear playback using pygame.
 
+Save audio output as:
+
+.mp3
+
+.wav
+
+> Save Translations
+
+Save translated text as:
+
+.txt
+
+.docx
+
+Save spoken output as audio files.
+
+📤 Document Translation (Advanced Feature)
+
+(Newly Added)
+
+This application now supports full document translation pipeline, including:
+
+> PDF Translation
+
+Extract text using pdfplumber.
+
+Automatically detect document language.
+
+Translate entire PDF text cleanly.
+
+> DOCX Translation
+
+Extract paragraphs and table content.
+
+Maintain paragraph structure.
+
+> PPTX Translation
+
+Extract slide text using python-pptx.
+
+Translate slide-by-slide content.
+
+> Image OCR Translation
+
+Convert images to text using Tesseract OCR.
+
+Supports:
+
+.png
+
+.jpg
+
+.jpeg
+
+.bmp
+
+.tif
+
+.tiff
+
+ Smart Features (New)
+ Auto Language Detection
+
+Detects the language of uploaded text, document, or OCR-extracted text.
+
+Automatically sets the input language for accurate translation.
+
+ Document Mode (Paragraph-wise Translation)
+
+Translates documents paragraph by paragraph for:
+
+Better accuracy
+
+Preserved structure
+
+More natural output
+
+🛠️ Technologies Used
+Backend / Core
+
+googletrans – Language translation
+
+SpeechRecognition – Speech-to-text
+
+gTTS – Text-to-speech
+
+pydub – Audio format handling
+
+pythoncom – Windows COM initialization
+
+pygame – Audio playback
+
+Document Processing
+
+python-docx – DOCX extraction & saving
+
+pdfplumber – PDF text extraction
+
+python-pptx – PPTX parsing
+
+pytesseract – OCR for images
+
+Pillow – Image processing
+
+UI
+
+Tkinter – Clean and responsive desktop interface
+
+🌍 Supported Languages
+
+Includes major languages like:
+
+English
+
+Hindi
+
+Telugu
+
+Tamil
+
+Bengali
+
+Marathi
+
+Kannada
+
+Malayalam
+
+Gujarati
+
+Urdu
+
+French
+
+German
+
+Spanish
+
+Japanese
+
+Chinese
+
+Korean
+
+Russian
+
+Arabic
+
+Dutch
+
+Turkish
+
+Italian
+
+Portuguese
