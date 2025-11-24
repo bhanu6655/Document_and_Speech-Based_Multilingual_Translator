@@ -1,3 +1,6 @@
+<img width="1256" height="930" alt="image" src="https://github.com/user-attachments/assets/00a8c99d-05cb-491c-8a62-0d4c535af4fe" />
+
+
 This is a Python-based desktop application built using Tkinter, designed to provide a complete multilingual translation solution.
 It supports text translation, audio translation, document translation (PDF, DOCX, PPTX), image OCR, speech recognition, and text-to-speech.
 
