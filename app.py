@@ -1,14 +1,13 @@
 # app.py
 
-import os
 import tkinter as tk
 from tkinter import END, filedialog, messagebox
 from tkinter import ttk
 
 from docx import Document
 
-from config import LANG_NAMES, LANG_NAME_TO_CODE
-from translation_engine import translate_text
+from config import LANG_NAMES
+from translation_engine import translate_text, translate_paragraphs, detect_language
 from audio_engine import (
     recognize_from_audio_file,
     recognize_from_microphone,
@@ -17,6 +16,7 @@ from audio_engine import (
     save_tts_to_file,
     cleanup_audio,
 )
+from document_loader import load_text_from_file
 
 
 def create_button(parent, text, command, row, column):
@@ -67,23 +67,55 @@ def main():
     frame1 = tk.Frame(main_win, bg="#333333", padx=10, pady=10)
     frame1.pack(pady=10, fill="x")
 
-    ttk.Label(frame1, text="Input Text:", background="#333333", foreground="white").grid(
-        row=0, column=0, padx=10, pady=5
-    )
+    ttk.Label(
+        frame1,
+        text="Input Text:",
+        background="#333333",
+        foreground="white",
+    ).grid(row=0, column=0, padx=10, pady=5)
+
     input_text = tk.Text(frame1, height=10, width=50, font=("Arial", 12))
     input_text.grid(row=1, column=0, padx=10, pady=5)
 
-    ttk.Label(frame1, text="Translated Text:", background="#333333", foreground="white").grid(
-        row=0, column=1, padx=10, pady=5
-    )
+    ttk.Label(
+        frame1,
+        text="Translated Text:",
+        background="#333333",
+        foreground="white",
+    ).grid(row=0, column=1, padx=10, pady=5)
+
     output_text = tk.Text(frame1, height=10, width=50, font=("Arial", 12))
     output_text.grid(row=1, column=1, padx=10, pady=5)
 
     # === Button callbacks using engines ===
 
+    def do_translate_document():
+        """
+        Use paragraph-wise translation (better for documents).
+        """
+        output_text.delete("1.0", END)
+        text = input_text.get("1.0", END).strip()
+        if not text:
+            messagebox.showwarning("Warning", "Please enter or load text to translate")
+            return
+
+        try:
+            translated = translate_paragraphs(text, v2.get())
+            output_text.insert(END, translated)
+        except Exception as e:
+            messagebox.showerror("Translation Error", str(e))
+
     def upload_text_file():
         file_path = filedialog.askopenfilename(
-            filetypes=[("Text/DOCX Files", "*.txt *.docx"), ("All Files", "*.*")]
+            filetypes=[
+                ("All Supported", "*.txt *.docx *.pdf *.pptx *.png *.jpg *.jpeg *.bmp *.tif *.tiff"),
+                ("Text files", "*.txt"),
+                ("Word Documents", "*.docx"),
+                ("PDF files", "*.pdf"),
+                ("PowerPoint files", "*.pptx"),
+                ("Image files", "*.png *.jpg *.jpeg *.bmp *.tif *.tiff"),
+                ("All Files", "*.*"),
+            ]
         )
         if not file_path:
             return
@@ -91,30 +123,39 @@ def main():
         input_text.delete("1.0", END)
 
         try:
-            if file_path.lower().endswith(".txt"):
-                with open(file_path, "r", encoding="utf-8", errors="replace") as f:
-                    input_text.insert(END, f.read())
+            extracted = load_text_from_file(file_path)
+            if not extracted.strip():
+                messagebox.showwarning(
+                    "No Text Found",
+                    "Could not extract any text from the selected file.",
+                )
+                return
 
-            elif file_path.lower().endswith(".docx"):
-                doc = Document(file_path)
-                content = [p.text for p in doc.paragraphs if p.text.strip()]
-                # Include table texts
-                for table in doc.tables:
-                    for row in table.rows:
-                        for cell in row.cells:
-                            if cell.text.strip():
-                                content.append(cell.text)
+            input_text.insert(END, extracted)
 
-                input_text.insert(END, "\n".join(content))
+            # Auto-detect language from extracted content (first few thousand chars)
+            snippet = extracted[:4000]
+            lang_code, lang_name = detect_language(snippet)
 
-            else:
-                messagebox.showerror("Error", "Unsupported file format")
+            if lang_name:
+                # If we know this language in our dropdown, select it
+                if lang_name in LANG_NAMES:
+                    v1.set(lang_name)
+
+                messagebox.showinfo(
+                    "Language Detected",
+                    f"Detected document language: {lang_name} ({lang_code})",
+                )
+
         except Exception as e:
-            messagebox.showerror("Error", str(e))
+            messagebox.showerror("Error", f"Failed to load file:\n{e}")
 
     def upload_audio_file():
         file_path = filedialog.askopenfilename(
-            filetypes=[("Audio Files", "*.wav *.mp3 *.ogg *.flac"), ("All Files", "*.*")]
+            filetypes=[
+                ("Audio Files", "*.wav *.mp3 *.ogg *.flac"),
+                ("All Files", "*.*"),
+            ]
         )
         if not file_path:
             return
@@ -132,7 +173,6 @@ def main():
         output_text.delete("1.0", END)
 
         try:
-            # Inform the user you're listening
             messagebox.showinfo("Speak Now", "Listening... Speak clearly into the microphone")
 
             spoken_text = recognize_from_microphone(v1.get())
@@ -224,10 +264,11 @@ def main():
         button_frame.grid_columnconfigure(i, weight=1)
 
     buttons = [
-        ("\U0001F4C4 Upload File (TXT/DOCX)", upload_text_file),
+        ("\U0001F4C4 Upload File (TXT/DOCX/PDF/PPTX/Image)", upload_text_file),
         ("\U0001F3A4 Upload Audio File", upload_audio_file),
         ("\U0001F3A7 Listen and Translate", listen_and_translate),
-        ("\U0001F4DD Translate", do_translate),
+        ("\U0001F4DD Translate (Normal)", do_translate),
+        ("\U0001F4D6 Translate (Document Mode)", do_translate_document),
         ("\U0001F50A Speak", do_speak),
         ("\U0001F507 Stop Speaking", do_stop_speaking),
         ("\U0001F4BE Save Text", save_translated_text),
@@ -247,6 +288,7 @@ def main():
         background="#1E1E1E",
         foreground="white",
     ).pack(side="left")
+
     ttk.Combobox(
         lang_frame,
         textvariable=v1,
@@ -261,6 +303,7 @@ def main():
         background="#1E1E1E",
         foreground="white",
     ).pack(side="left")
+
     ttk.Combobox(
         lang_frame,
         textvariable=v2,
